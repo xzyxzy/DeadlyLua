@@ -52,6 +52,7 @@ effect.CWI = drawMgr:CreateRect(0,0,18,18,0x000000ff) effect.CWI.visible = false
 effect.ChargeI1 = drawMgr:CreateRect(-10,-60,26,26,0xFF8AB160) effect.ChargeI1.visible = false
 effect.ChargeI2 = drawMgr:CreateRect(0,0,18,18,0xFF8AB160) effect.ChargeI2.visible = false
 effect.HeroIcon = drawMgr:CreateRect(0,0,16,16,0xffffffff) effect.HeroIcon.visible = false
+effect.Jugernaut = drawMgr:CreateRect(0,0,18,18,0xFF8AB160,drawMgr:GetTextureId("NyanUI/miniheroes/Juggernaut")) effect.Jugernaut.visible = false
 effect.Line = drawMgr:CreateLine(0,0,0,0,0xffffffff) effect.Line.visible = false
 
 effect.spells = {
@@ -92,6 +93,7 @@ function Main(tick)
 				if id == CDOTA_Unit_Hero_Kunkka then BoatF(cast,team) end
 				if id == CDOTA_Unit_Hero_Techies then MinesF(team) end
 				if id == CDOTA_Unit_Hero_TemplarAssassin or id == CDOTA_Unit_Hero_Pugna then TrapF(team) end
+				if id == CDOTA_Unit_Hero_Juggernaut then Jug(v.team,tick,v.visible) end
 		--	else
 			--	Illision(v,tick)
 			end
@@ -305,6 +307,32 @@ function Illision(v,tick)
 		end
 		Sleep(250,"ShowIllusion")
 	end
+end
+
+function Jug(teams,tick,visibl)
+	if SleepCheck("Jug") then	
+		if SleepCheck("healward") then
+			local ward = entityList:GetEntities({classId=297,alive = true,team=teams})[1]
+			if ward then
+				if not effect.Jugernaut.visible and jugSleep == 0 then
+					jugSleep = tick + 2000
+					local Minimap = MapToMinimap(ward.position.x,ward.position.y)
+					effect.Jugernaut.x = Minimap.x-10
+					effect.Jugernaut.y = Minimap.y-10
+					effect.Jugernaut.visible = not visibl
+					Sleep(50000,"healward")
+				end			
+			elseif jugSleep ~= 0 then
+				jugSleep = 0
+			end
+		end
+		if effect.Jugernaut.visible then
+			if jugSleep <= tick then
+				effect.Jugernaut.visible = false
+			end
+		end
+		Sleep(500,"Jug")
+	end	
 end
 
 function RangeCastW(v,befor,after)	
@@ -765,6 +793,7 @@ function GameClose()
 	effect.CWI.visible = false
 	effect.ChargeI1.visible = false
 	effect.ChargeI2.visible = false
+	effect.Jugernaut.visible = false
 	collectgarbage("collect")
 end
 
