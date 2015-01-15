@@ -794,6 +794,7 @@ function GameClose()
 	effect.ChargeI1.visible = false
 	effect.ChargeI2.visible = false
 	effect.Jugernaut.visible = false
+	
 	collectgarbage("collect")
 end
 
