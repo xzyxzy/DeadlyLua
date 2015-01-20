@@ -535,7 +535,7 @@ function GetXX(ent)
 end
 
 function Color(ent,meteam)
-	if team ~= meteam then
+	if ent ~= meteam then
 		return 0x960018FF
 	else
 		return 0x008000FF
