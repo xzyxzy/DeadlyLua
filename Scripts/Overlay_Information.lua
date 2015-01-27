@@ -33,53 +33,53 @@ testX = 1600
 testY = 900
 tpanelHeroSize = 55
 tpanelHeroDown = 25.714
-tpanelHeroSS = 22
+tpanelHeroSS = 20
 tmanaSize = 83
 tmanaX = 42
 tmanaY = 18
 tglyphX = 1.0158
 tglyphY = 1.03448
-txxB = 2.527
-txxG = 3.47
+txxB = 2.535
+txxG = 3.485
 elseif math.floor(client.screenRatio*100) == 166 then
 testX = 1280
 testY = 768
-tpanelHeroSize = 47
+tpanelHeroSize = 47.1
 tpanelHeroDown = 25.714
-tpanelHeroSS = 22
+tpanelHeroSS = 18
 tmanaSize = 70
 tmanaX = 36
-tmanaY = 14
+tmanaY = 15
 tglyphX = 1.0180
 tglyphY = 1.03448
-txxB = 2.558
-txxG = 3.62
+txxB = 2.59
+txxG = 3.66
 elseif math.floor(client.screenRatio*100) == 160 then
 testX = 1280
 testY = 800
 tpanelHeroSize = 48.5
 tpanelHeroDown = 25.714
-tpanelHeroSS = 22
+tpanelHeroSS = 20
 tmanaSize = 74
 tmanaX = 38
-tmanaY = 15
+tmanaY = 16
 tglyphX = 1.0180
 tglyphY = 1.03448
 txxB = 2.579
-txxG = 3.735
+txxG = 3.74
 elseif math.floor(client.screenRatio*100) == 133 then
 testX = 1024
 testY = 768
 tpanelHeroSize = 47
 tpanelHeroDown = 25.714
-tpanelHeroSS = 22
+tpanelHeroSS = 18
 tmanaSize = 72
 tmanaX = 37
 tmanaY = 14
 tglyphX = 1.021
 tglyphY = 1.03448
-txxB = 2.747
-txxG = 4.54
+txxB = 2.78
+txxG = 4.63
 elseif math.floor(client.screenRatio*100) == 125 then
 testX = 1280
 testY = 1024
@@ -98,14 +98,14 @@ testX = 1600
 testY = 900
 tpanelHeroSize = 55
 tpanelHeroDown = 25.714
-tpanelHeroSS = 22
+tpanelHeroSS = 20
 tmanaSize = 83
 tmanaX = 42
 tmanaY = 18
 tglyphX = 1.0158
 tglyphY = 1.03448
-txxB = 2.527
-txxG = 3.47
+txxB = 2.535
+txxG = 3.485
 end
 
 local rate = client.screenSize.x/testX
@@ -126,11 +126,10 @@ rune[-2272] = drawMgr:CreateRect(0,0,20*rate,20*rate,0x000000ff) rune[-2272].vis
 rune[3008] = drawMgr:CreateRect(0,0,20*rate,20*rate,0x000000ff) rune[3008].visible = false
 
 --font
-local F10 = drawMgr:CreateFont("F10","Arial",10*rate,500)
-local F11 = drawMgr:CreateFont("F11","Arial",11*rate,500)
-local F12 = drawMgr:CreateFont("F12","Arial",12*rate,500)
-local F13 = drawMgr:CreateFont("F13","Arial",13*rate,500)
-local F14 = drawMgr:CreateFont("F14","Arial",14*rate,500)
+local F10 = drawMgr:CreateFont("F10","Arial",10*rate,600*rate)
+local F11 = drawMgr:CreateFont("F11","Arial",11*rate,600*rate)
+local F13 = drawMgr:CreateFont("F13","Arial",13*rate,600*rate)
+local hp = drawMgr:CreateFont("F14","Arial",14*rate,600*rate)
 
 --gliph coordinate
 local glyph = drawMgr:CreateText(client.screenSize.x/tglyphX,client.screenSize.y/tglyphY,0xFFFFFF70,"",F13)
@@ -183,15 +182,15 @@ function Tick(tick)
 				
 					if not hero[hand].mana then hero[hand].mana = {} end
 				
-					for d= 1, v.maxMana/100 do
-						if not not mana[d] then mana[d] = {} end						
-						if not hero[hand].mana[d] then hero[hand].mana[d] = {}
-						hero[hand].mana[d].cage = drawMgr:CreateRect(0,-manaY+1,1,5,0x0D1453ff,true) hero[hand].mana[d].cage.visible = false hero[hand].mana[d].cage.entity = v hero[hand].mana[d].cage.entityPosition = Vector(0,0,v.healthbarOffset)
+					for d= 1, v.maxMana/250 do
+						if not hero[hand].mana[d] then
+							hero[hand].mana[d] = drawMgr:CreateRect(0,-manaY+1,2,5,0x0D145390,true) hero[hand].mana[d].visible = false hero[hand].mana[d].entity = v hero[hand].mana[d].entityPosition = Vector(0,0,v.healthbarOffset)
 						end
 						if see then
-							hero[hand].mana[d].cage.x = -manaX+manaSizeW/v.maxMana*100*d hero[hand].mana[d].cage.visible = true 
-						elseif hero[hand].mana[d].cage.visible then
-							hero[hand].mana[d].cage.visible = false
+							hero[hand].mana[d].x = -manaX+manaSizeW/v.maxMana*250*d 
+							hero[hand].mana[d].visible = true 
+						elseif hero[hand].mana[d].visible then
+							hero[hand].mana[d].visible = false
 						end
 					end
 
@@ -222,21 +221,22 @@ function Tick(tick)
 							realSpells[#realSpells + 1] = v
 						end
 					end
-					----------------
-					for a,Spell in ipairs(realSpells) do
-						if not spell[a] then spell[a] = {} end
-						if not hero[hand].spell then hero[hand].spell = {} end
-						
-						if not hero[hand].spell[a] then hero[hand].spell[a] = {}
-							hero[hand].spell[a].bg = drawMgr:CreateRect(a*18*rate-54*rate,81*rate,16*rate,14*rate,0x00000095) hero[hand].spell[a].bg.visible = false hero[hand].spell[a].bg.entity = v hero[hand].spell[a].bg.entityPosition = Vector(0,0,offset)
-							hero[hand].spell[a].nl = drawMgr:CreateRect(a*18*rate-55*rate,80*rate,18*rate,16*rate,0xCE131399,true) hero[hand].spell[a].nl.visible = false hero[hand].spell[a].nl.entity = v hero[hand].spell[a].nl.entityPosition = Vector(0,0,offset)
-							hero[hand].spell[a].lvl1 = drawMgr:CreateRect(a*18*rate-52*rate,80*rate+12*rate,2*rate,2*rate,0xFFFF00FF) hero[hand].spell[a].lvl1.visible = false hero[hand].spell[a].lvl1.entity = v hero[hand].spell[a].lvl1.entityPosition = Vector(0,0,offset)
-							hero[hand].spell[a].lvl2 = drawMgr:CreateRect(a*18*rate-49*rate,80*rate+12*rate,2*rate,2*rate,0xFFFF00FF) hero[hand].spell[a].lvl2.visible = false hero[hand].spell[a].lvl2.entity = v hero[hand].spell[a].lvl2.entityPosition = Vector(0,0,offset)
-							hero[hand].spell[a].lvl3 = drawMgr:CreateRect(a*18*rate-46*rate,80*rate+12*rate,2*rate,2*rate,0xFFFF00FF) hero[hand].spell[a].lvl3.visible = false hero[hand].spell[a].lvl3.entity = v hero[hand].spell[a].lvl3.entityPosition = Vector(0,0,offset)
-							hero[hand].spell[a].lvl4 = drawMgr:CreateRect(a*18*rate-43*rate,80*rate+12*rate,2*rate,2*rate,0xFFFF00FF) hero[hand].spell[a].lvl4.visible = false hero[hand].spell[a].lvl4.entity = v hero[hand].spell[a].lvl4.entityPosition = Vector(0,0,offset)
+					if not hero[hand].spell then 
+						hero[hand].spell = {}
+						for a = 1,8 do
+							spell[a] = {} 
+							hero[hand].spell[a] = {}
+							hero[hand].spell[a].bg = drawMgr:CreateRect(a*19*rate-54*rate,81*rate,17*rate,14*rate,0x00000095) hero[hand].spell[a].bg.visible = false hero[hand].spell[a].bg.entity = v hero[hand].spell[a].bg.entityPosition = Vector(0,0,offset)
+							hero[hand].spell[a].nl = drawMgr:CreateRect(a*19*rate-55*rate,80*rate,19*rate,16*rate,0xCE131399,true) hero[hand].spell[a].nl.visible = false hero[hand].spell[a].nl.entity = v hero[hand].spell[a].nl.entityPosition = Vector(0,0,offset)
+							hero[hand].spell[a].lvl1 = drawMgr:CreateRect(a*19*rate-52*rate,80*rate+12*rate,2*rate,2*rate,0xFFFF00FF) hero[hand].spell[a].lvl1.visible = false hero[hand].spell[a].lvl1.entity = v hero[hand].spell[a].lvl1.entityPosition = Vector(0,0,offset)
+							hero[hand].spell[a].lvl2 = drawMgr:CreateRect(a*19*rate-49*rate,80*rate+12*rate,2*rate,2*rate,0xFFFF00FF) hero[hand].spell[a].lvl2.visible = false hero[hand].spell[a].lvl2.entity = v hero[hand].spell[a].lvl2.entityPosition = Vector(0,0,offset)
+							hero[hand].spell[a].lvl3 = drawMgr:CreateRect(a*19*rate-46*rate,80*rate+12*rate,2*rate,2*rate,0xFFFF00FF) hero[hand].spell[a].lvl3.visible = false hero[hand].spell[a].lvl3.entity = v hero[hand].spell[a].lvl3.entityPosition = Vector(0,0,offset)
+							hero[hand].spell[a].lvl4 = drawMgr:CreateRect(a*19*rate-43*rate,80*rate+12*rate,2*rate,2*rate,0xFFFF00FF) hero[hand].spell[a].lvl4.visible = false hero[hand].spell[a].lvl4.entity = v hero[hand].spell[a].lvl4.entityPosition = Vector(0,0,offset)
 							hero[hand].spell[a].textT = drawMgr:CreateText(0,80*rate,0xFFFFFFAA,"",F13) hero[hand].spell[a].textT.visible = false hero[hand].spell[a].textT.entity = v hero[hand].spell[a].textT.entityPosition = Vector(0,0,offset)
 						end
-
+					end
+					----------------
+					for a,Spell in ipairs(realSpells) do
 						if see then
 							hero[hand].spell[a].bg.visible = true
 							if jpg and (a==4 or a==5) then
@@ -255,16 +255,16 @@ function Tick(tick)
 								hero[hand].spell[a].textT.visible = false								
 							elseif Spell.cd > 0 then
 								local cooldown = math.ceil(Spell.cd)
-								local shift1 = nil
-								if cooldown > 99 then cooldown = "99" shift1 = 1 elseif cooldown < 10 then shift1 = 4 else shift1 = 2 end
+								local shift1 = 1
+								if cooldown > 99 then cooldown = "99" elseif cooldown < 10 then shift1 = 3 end
 								hero[hand].spell[a].nl.visible = true hero[hand].spell[a].nl.textureId = drawMgr:GetTextureId("NyanUI/other/spell_cooldown")
-								hero[hand].spell[a].textT.visible = true hero[hand].spell[a].textT.x = a*18*rate-53*rate+shift1 hero[hand].spell[a].textT.text = ""..cooldown hero[hand].spell[a].textT.color = 0xFFFFFFff
+								hero[hand].spell[a].textT.visible = true hero[hand].spell[a].textT.x = a*19*rate-53*rate+shift1*rate hero[hand].spell[a].textT.text = ""..cooldown hero[hand].spell[a].textT.color = 0xFFFFFFff
 							elseif Spell.state == LuaEntityAbility.STATE_NOMANA then
 								local ManaCost = math.floor(math.ceil(Spell.manacost) - v.mana)
-								local shift2 = nil
-								if ManaCost > 99 then ManaCost = "99" shift2 = 1 elseif ManaCost < 10 then shift2 = 4 else shift2 = 2 end
+								local shift2 = 1
+								if ManaCost > 99 then ManaCost = "99" elseif ManaCost < 10 then shift2 = 3 end
 								hero[hand].spell[a].nl.visible = true hero[hand].spell[a].nl.textureId = drawMgr:GetTextureId("NyanUI/other/spell_nomana")
-								hero[hand].spell[a].textT.visible = true hero[hand].spell[a].textT.x = a*18*rate-53*rate+shift2 hero[hand].spell[a].textT.text = ""..ManaCost hero[hand].spell[a].textT.color = 0xBBA9EEff
+								hero[hand].spell[a].textT.visible = true hero[hand].spell[a].textT.x = a*19*rate-53*rate+shift2*rate hero[hand].spell[a].textT.text = ""..ManaCost hero[hand].spell[a].textT.color = 0xBBA9EEff
 							elseif Spell.state == 17 then
 								hero[hand].spell[a].nl.visible = true hero[hand].spell[a].nl.textureId = drawMgr:GetTextureId("NyanUI/other/spell_passive")
 								hero[hand].spell[a].textT.visible = false							
@@ -308,15 +308,12 @@ function Tick(tick)
 				
 				--Items
 				if overlayItem then
-				
-					itemtab[v.classId] = 0
-
-					for c = 1, 6 do
-
-						if not item[c] then item[c] = {} end
-						if not hero[hand].item then hero[hand].item = {} end
-
-						if not hero[hand].item[c] then hero[hand].item[c] = {}
+					
+					if not hero[hand].item then 
+						hero[hand].item = {}
+						for c = 1, 6 do
+							item[c] = {}
+							hero[hand].item[c] = {}
 							hero[hand].item[c].gem = drawMgr:CreateRect(0,-manaY+7,18*rate,16*rate,0x7CFC0099) hero[hand].item[c].gem.visible = false hero[hand].item[c].gem.entity = v hero[hand].item[c].gem.entityPosition = Vector(0,0,offset)
 							hero[hand].item[c].dust = drawMgr:CreateRect(0,-manaY+6,18*rate,16*rate,0x7CFC0099) hero[hand].item[c].dust.visible = false hero[hand].item[c].dust.entity = v hero[hand].item[c].dust.entityPosition = Vector(0,0,offset)
 							hero[hand].item[c].sentryImg = drawMgr:CreateRect(0,-manaY+7,16*rate,14*rate,0x7CFC0099) hero[hand].item[c].sentryImg.visible = false hero[hand].item[c].sentryImg.entity = v hero[hand].item[c].sentryImg.entityPosition = Vector(0,0,offset)
@@ -324,6 +321,11 @@ function Tick(tick)
 							hero[hand].item[c].sphereImg = drawMgr:CreateRect(0,-manaY+7,16*rate,14*rate,0x7CFC0099) hero[hand].item[c].sphereImg.visible = false hero[hand].item[c].sphereImg.entity = v hero[hand].item[c].sphereImg.entityPosition = Vector(0,0,offset)
 							hero[hand].item[c].sphereTxt = drawMgr:CreateText(0,-manaY+7,0xffffffFF,"",F13) hero[hand].item[c].sphereTxt.visible = false hero[hand].item[c].sphereTxt.entity = v hero[hand].item[c].sphereTxt.entityPosition = Vector(0,0,offset)						
 						end
+					end
+				
+					itemtab[v.classId] = 0
+
+					for c = 1, 6 do
 
 						local Items = v:GetItem(c)
 
@@ -345,8 +347,8 @@ function Tick(tick)
 								hero[hand].item[c].sphereImg.visible = true hero[hand].item[c].sphereImg.x = itemtab[v.classId]-manaX-16*rate hero[hand].item[c].sphereImg.textureId = drawMgr:GetTextureId("NyanUI/other/O_sphere")
 								if Items.cd ~= 0 then
 									local cdL = math.ceil(Items.cd)
-									local shift4 = nil
-									if cdL < 10 then shift4 = 2 else shift4 = 0 end
+									local shift4 = 0
+									if cdL < 10 then shift4 = 2 end
 									hero[hand].item[c].sphereTxt.visible = true hero[hand].item[c].sphereTxt.x = itemtab[v.classId]-manaX-14*rate + shift4 hero[hand].item[c].sphereTxt.text = ""..cdL
 								else
 									hero[hand].item[c].sphereTxt.visible = false
@@ -398,13 +400,14 @@ function Tick(tick)
 					local ult = v:GetAbility(d)
 					if ult ~= nil then
 						if ult.abilityType == 1 then						
-							panel[handId].ulti.x = xx-2+x_*handId
+							panel[handId].ulti.x = xx+x_*handId
 							if ult.cd > 0 then
 								local cooldownUlti = math.ceil(ult.cd)
-								if cooldownUlti > 99 then cooldownUlti = "99" shift3 = -2 elseif cooldownUlti < 10 then shift3 = 0 else shift3 = -2 end							
+								local shift = -1 
+								if cooldownUlti > 99 then cooldownUlti = "99" elseif cooldownUlti < 10 then shift = 3 end							
 								panel[handId].ulti.visible = true 
 								panel[handId].ulti.textureId = drawMgr:GetTextureId("NyanUI/other/ulti_cooldown")
-								panel[handId].ultiCDT.visible = true panel[handId].ultiCDT.x = xx+x_*handId + shift3 panel[handId].ultiCDT.text = ""..cooldownUlti
+								panel[handId].ultiCDT.visible = true panel[handId].ultiCDT.x = xx+x_*handId + shift panel[handId].ultiCDT.text = ""..cooldownUlti
 							elseif ult.state == LuaEntityAbility.STATE_READY or ult.state == 17 then
 								panel[handId].ulti.visible = true 
 								panel[handId].ulti.textureId = drawMgr:GetTextureId("NyanUI/other/ulti_ready")
@@ -530,12 +533,12 @@ function GetXX(ent)
 	if ent == 2 then		
 		return client.screenSize.x/txxG + 1
 	elseif ent == 3 then
-		return client.screenSize.x/txxB 
+		return client.screenSize.x/txxB + 1
 	end
 end
 
 function Color(ent,meteam)
-	if ent ~= meteam then
+	if team ~= meteam then
 		return 0x960018FF
 	else
 		return 0x008000FF
