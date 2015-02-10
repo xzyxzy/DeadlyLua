@@ -34,17 +34,17 @@ function Tick(tick)
 	local spellList = {}
 	
 	for a,spell in ipairs(me.abilities) do
-		if spell.name ~= "attribute_bonus" and not spell.hidden then
+		if spell.abilityType ~= LuaEntityAbility.TYPE_ATTRIBUTES and not spell.hidden then
 			spellList[#spellList+1] = spell
 		end
 	end
 	
 	for a,v in ipairs(spellList) do
-		if not spells[a] then spells[a] = {} end
-		if not spells[a].img then
+		if not spells[a] then 
+			spells[a] = {}
 			spells[a].img = drawMgr:CreateRect(0,0,32,32,0x000000FF) spells[a].img.visible = false
 			spells[a].rect = drawMgr:CreateRect(0,0,36,36,0xFFFFFFff,true) spells[a].rect.visible = false
-			spells[a].img.textureId = drawMgr:GetTextureId("NyanUI/spellicons/"..v.name)
+			spells[a].img.textureId = drawMgr:GetTextureId("NyanUI/spellicons/"..v.name)	
 		end
 	end
 	
@@ -78,13 +78,10 @@ function Tick(tick)
 		if v.level ~= 0 then
 			if spells[a].state then
 				spells[a].range = v.castRange
-				if (not spells[a].range or spells[a].range == 0) and v.specialCount > 1 then
-					spells[a].range = v:GetSpecial(1):GetData(math.min(v.specials[1].dataCount,v.level))
-					if spells[a].range < 100 then
-						spells[a].range = v:GetSpecial(2):GetData(math.min(v.specials[2].dataCount,v.level))
-					end
+				if not spells[a].range or spells[a].range == 0 then	
+					spells[a].range = GetSpecial(v)					
 				end
-				if not spells[a].range or type(spells[a].range) ~= "number" then return end					
+				if not spells[a].range then spells[a].state = nil return end
 				if not spells[a].effect or spells[a].ranges ~= spells[a].range then
 					spells[a].effect = Effect(me,"range_display")
 					spells[a].effect:SetVector( 1,Vector(spells[a].range,0,0) )
@@ -146,6 +143,23 @@ function RemoveEffect()
 	activated2 = false
 end
 
+function GetSpecial(spell)
+	if spell.specialCount > 1 then
+		for i,v in ipairs(spell.specials) do
+			if v.name == "radius" then
+				return v:GetData(math.min(v.dataCount,spell.level))
+			elseif v.name == "area_of_effect" then
+				return v:GetData(math.min(v.dataCount,spell.level))
+			end
+		end
+		local last = spell:GetSpecial(1):GetData(math.min(spell.specials[1].dataCount,spell.level))
+		if type(last) == "number" and last > 100 then
+			return last
+		end
+	end
+	return nil
+end
+
 function IsMouseOnButton(x,y,h,w)
 	local mx = client.mouseScreenPosition.x
 	local my = client.mouseScreenPosition.y
@@ -196,4 +210,3 @@ end
 
 script:RegisterEvent(EVENT_TICK,Load)
 script:RegisterEvent(EVENT_CLOSE,GameClose)
-
