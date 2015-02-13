@@ -1,4 +1,3 @@
---<<Automatically kill enemy>>
 require("libs.Utils")
 require("libs.ScriptConfig")
 
@@ -15,7 +14,6 @@ local play = false
 local sleep = 250
 local icon = drawMgr:CreateRect(xx,yy,36,24,0x000000ff,drawMgr:GetTextureId("NyanUI/items/dagon")) icon.visible = false
 local rect = drawMgr:CreateRect(xx-1,yy-1,26,25,0xFFFFFF90,true) rect.visible = false
-local dmg = {400,500,600,700,800}
 
 function Tick(tick)
  
@@ -28,14 +26,13 @@ function Tick(tick)
 	if not me then return end
        
 	local dagon = me:FindDagon()
-	local visible = Draw(activated,dagon) 
+	local visible = IsTrue(activated,dagon)
 	
 	rect.visible = visible
 	icon.visible = visible
 	
 	if visible and dagon:CanBeCasted() and me:CanUseItems()  then
-		local lvl = string.match (dagon.name, "%d+")
-		if not lvl then lvl = 1 end local dmgD = dmg[lvl*1]
+		local dmgD = dagon:GetSpecialData("damage")
 		local enemy = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team = (5-me.team)})
 		if not me:IsChanneling() and Nyx(me) then
 			for i = 1,#enemy do
@@ -44,6 +41,7 @@ function Tick(tick)
 					if not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and not v:IsLinkensProtected() then
 						if v.health < v:DamageTaken(dmgD, DAMAGE_MAGC, me) then
 							me:CastAbility(dagon,v)
+							break
 						end
 					end
 				end
@@ -53,18 +51,18 @@ function Tick(tick)
 
 end
 
+function IsTrue(a,b)
+	if a and b then
+		return true
+	end
+	return false
+end
+
 function Nyx(target)
 	if target.classId == CDOTA_Unit_Hero_Nyx_Assassin and target:DoesHaveModifier("modifier_nyx_assassin_vendetta") then
 		return false
 	end
 	return true
-end
-
-function Draw(a,b)
-	if a and b then
-		return true
-	end
-	return false
 end
 
 function Key(msg,code)
