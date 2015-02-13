@@ -52,7 +52,7 @@ effect.last = {}
 --timers
 effect.times = {}
 --drawMgr
-effect.ArrowI = drawMgr:CreateRect(0,0,18*rate,118*rate,0x000000ff) effect.ArrowI.visible = false
+effect.ArrowI = drawMgr:CreateRect(0,0,18*rate,18*rate,0x000000ff) effect.ArrowI.visible = false
 effect.PAI = drawMgr:CreateRect(0,0,18*rate,18*rate,0x000000ff) effect.PAI.visible = false
 effect.InfestI = drawMgr:CreateRect(-10,-60,26*rate,26*rate,0xFF8AB160) effect.InfestI.visible = false
 effect.SnipeI = drawMgr:CreateRect(-10,-60,26*rate,26*rate,0xFF8AB160) effect.SnipeI.visible = false
