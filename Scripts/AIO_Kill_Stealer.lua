@@ -86,7 +86,7 @@ function Tick(tick)
 	if ID == CDOTA_Unit_Hero_Abaddon then
 		Kill(true,me,1,{100, 150, 200, 250},nil,nil,1)
 	elseif ID == CDOTA_Unit_Hero_Axe then		
-		dmgg = KillAxe(me,{250,350,450},{300,450,625})		
+		dmgg = KillAxe(me,{250,325,400},{300,425,550})		
 	elseif ID == CDOTA_Unit_Hero_Bane then
 		Kill(true,me,2,{90, 160, 230, 300},nil,nil,1)
 	elseif ID == CDOTA_Unit_Hero_BountyHunter then
