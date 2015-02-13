@@ -11,6 +11,7 @@ config:SetParameter("glypPanel", true)
 config:SetParameter("ShowRune", true)
 config:SetParameter("ShowCourier", true)
 config:SetParameter("ShowIfVisible", false)
+config:SetParameter("Ally", true)
 config:Load()
 
 local manaBar = config.manaBar
@@ -21,6 +22,7 @@ local glypPanel = config.glypPanel
 local ShowRune = config.ShowRune
 local ShowCourier = config.ShowCourier
 local ShowIfVisible = config.ShowIfVisible
+local Ally = config.Ally
 
 local item = {} local hero = {} local spell = {} local panel = {} local mana = {} local cours = {} local eff = {} local mod = {} local rune = {} local itemtab = {} local play = false
 
@@ -149,22 +151,23 @@ function Tick(tick)
 		Rune()
 	end
 	
-	if ShowCourier then
-		Courier(me.team)
-	end
-	
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO})
 	local player = entityList:GetEntities({classId=CDOTA_PlayerResource})[1]
+	local cours = entityList:GetEntities({classId = CDOTA_Unit_Courier})
 	
 	if ShowIfVisible then
-		VisibleByEnemy(me,enemies)
+		VisibleByEnemy(me,enemies,cours)
+	end
+
+	if ShowCourier then
+		Courier(me.team,cours)
 	end
 	
 	for i = 1, #enemies do
 		local v = enemies[i]
 		if not v.illusion then
 			local hand = v.handle
-			if v.team ~= me.team then
+			if (Ally and hand ~= me.handle) or v.team ~= me.team then
 				local offset = v.healthbarOffset
 
 				if offset == -1 then return end
@@ -400,7 +403,7 @@ function Tick(tick)
 					local ult = v:GetAbility(d)
 					if ult ~= nil then
 						if ult.abilityType == 1 then						
-							panel[handId].ulti.x = xx+x_*handId
+							panel[handId].ulti.x = xx+x_*(handId+0.01)
 							if ult.cd > 0 then
 								local cooldownUlti = math.ceil(ult.cd)
 								local shift = -1 
@@ -472,37 +475,55 @@ function Rune()
 	end	
 end
 
-function Courier(teams)		
-	local enemyCours = entityList:FindEntities({classId = CDOTA_Unit_Courier,team = (5-teams)})
-	for i,v in ipairs(enemyCours) do
-		local hand = v.handle
-		if not cours[hand] then
-			cours[hand] = drawMgr:CreateRect(0,0,12*rate,12*rate,0x000000FF) cours[hand].visible = false
-		end
-	
-		if v.visible and v.alive then
-			cours[hand].visible = true
-			local courMinimap = MapToMinimap(v.position.x,v.position.y)
-			cours[hand].x,cours[hand].y = courMinimap.x-10,courMinimap.y-6
-			local flying = v:GetProperty("CDOTA_Unit_Courier","m_bFlyingCourier")
-			if flying then
-				cours[hand].textureId = drawMgr:GetTextureId("NyanUI/other/courier_flying")
-				cours[hand].size = Vector2D(25*rate,12*rate)
-			else
-				cours[hand].textureId = drawMgr:GetTextureId("NyanUI/other/courier")		
+function Courier(teams,tab)
+	for i,v in ipairs(tab) do	
+		if v.team ~= teams then
+			local hand = v.handle
+			if not cours[hand] then
+				cours[hand] = drawMgr:CreateRect(0,0,12*rate,12*rate,0x000000FF) cours[hand].visible = false
 			end
-		elseif cours[hand].visible then
-			cours[hand].visible = false
-		end
+		
+			if v.visible and v.alive then
+				cours[hand].visible = true
+				local courMinimap = MapToMinimap(v.position.x,v.position.y)
+				cours[hand].x,cours[hand].y = courMinimap.x-10,courMinimap.y-6
+				local flying = v:GetProperty("CDOTA_Unit_Courier","m_bFlyingCourier")
+				if flying then
+					cours[hand].textureId = drawMgr:GetTextureId("NyanUI/other/courier_flying")
+					cours[hand].size = Vector2D(25*rate,12*rate)
+				else
+					cours[hand].textureId = drawMgr:GetTextureId("NyanUI/other/courier")		
+				end
+			elseif cours[hand].visible then
+				cours[hand].visible = false
+			end
+			
+		end		
 	end  
 end
 
-function VisibleByEnemy(me,ent)
-
+function VisibleByEnemy(me,ent,cour)
 	local effectDeleted = false
+	
+	for i,v in ipairs(cour) do
+		if v.team == me.team then
+			local hand = v.handle
+			local visible = v.visibleToEnemy
+			if eff[hand] == nil then
+				if visible then						    
+					eff[hand] = Effect(v,"ambient_gizmo_model")
+					eff[hand]:SetVector(1,Vector(0,0,0))
+				end
+			elseif not visible then
+				eff[hand] = nil
+				effectDeleted = true
+			end
+		end
+	end
+	
 	for _,v in ipairs(ent) do 
 		if v.alive and v.team == me.team then
-			local OnScreen = client:ScreenPosition(v.position)	
+			local OnScreen = client:ScreenPosition(v.position)
 			if OnScreen then
 				local hand = v.handle
 				local effect = nil
@@ -512,10 +533,12 @@ function VisibleByEnemy(me,ent)
 					effect = "ambient_gizmo_model" 
 				end
 				local visible = v.visibleToEnemy
-				if eff[hand] == nil and visible then						    
-					eff[hand] = Effect(v,effect)
-					eff[hand]:SetVector(1,Vector(0,0,0))
-				elseif not visible and eff[hand] ~= nil then
+				if eff[hand] == nil then
+					if visible then						    
+						eff[hand] = Effect(v,effect)
+						eff[hand]:SetVector(1,Vector(0,0,0))
+					end
+				elseif not visible then
 					eff[hand] = nil
 					effectDeleted = true
 				end
