@@ -10,7 +10,7 @@ config:SetParameter("topPanel", true)
 config:SetParameter("glypPanel", true)
 config:SetParameter("ShowRune", true)
 config:SetParameter("ShowCourier", true)
-config:SetParameter("ShowIfVisible", false)
+config:SetParameter("ShowIfVisible", true)
 config:SetParameter("Ally", true)
 config:Load()
 
