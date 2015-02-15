@@ -24,7 +24,7 @@ local ShowCourier = config.ShowCourier
 local ShowIfVisible = config.ShowIfVisible
 local Ally = config.Ally
 
-local item = {} local hero = {} local spell = {} local panel = {} local mana = {} local cours = {} local eff = {} local mod = {} local rune = {} local itemtab = {} local play = false
+local item = {} local hero = {} local spell = {} local panel = {} local mana = {} local cours = {} local eff = {} local mod = {} local rune = {} local itemtab = {} local play = false local count = nil
 
 print(math.floor(client.screenRatio*100))
 
@@ -151,9 +151,9 @@ function Tick(tick)
 		Rune()
 	end
 	
+	local cours = entityList:GetEntities({type=LuaEntity.TYPE_COURIER})
 	local enemies = entityList:GetEntities({type=LuaEntity.TYPE_HERO})
 	local player = entityList:GetEntities({classId=CDOTA_PlayerResource})[1]
-	local cours = entityList:GetEntities({classId = CDOTA_Unit_Courier})
 	
 	if ShowIfVisible then
 		VisibleByEnemy(me,enemies,cours)
@@ -384,7 +384,8 @@ function Tick(tick)
 			
 				local xx = GetXX(v.team)
 				local color = Color(v.team,me.team)
-				local handId = v.playerId
+				local handId = GetID(v.playerId,count,v.team)
+				
 				if not panel[handId] then panel[handId] = {}
 					panel[handId].hpINB = drawMgr:CreateRect(0,y_,x_-1,8*rate,0x000000D0) panel[handId].hpINB.visible = false
 					panel[handId].hpIN = drawMgr:CreateRect(0,y_,0,8*rate,color) panel[handId].hpIN.visible = false				
@@ -552,6 +553,24 @@ function VisibleByEnemy(me,ent,cour)
 
 end
 
+function GetCount()
+	local num = 0
+	for i,v in ipairs(entityList:GetEntities({type=LuaEntity.TYPE_PLAYER})) do
+		if v.team == LuaEntity.TEAM_RADIANT then
+			num = num + 1
+		end
+	end
+	return num
+end
+
+function GetID(id,count,team)
+	if team == LuaEntity.TEAM_DIRE then
+		return 5 - count + id
+	else
+		return id
+	end
+end	
+
 function GetXX(ent)
 	if ent == 2 then		
 		return client.screenSize.x/txxG + 1
@@ -561,7 +580,7 @@ function GetXX(ent)
 end
 
 function Color(ent,meteam)
-	if team ~= meteam then
+	if ent ~= meteam then
 		return 0x960018FF
 	else
 		return 0x008000FF
@@ -586,6 +605,7 @@ end
 function Load()
 	if PlayingGame() then
 		play = true
+		count = GetCount()
 		script:RegisterEvent(EVENT_TICK,Tick)
 		script:UnregisterEvent(Load)
 	end
