@@ -175,9 +175,9 @@ function Key(msg,code)
 		if code == toggleKey then
 			activated = true
 		elseif code == rt then
-			local selected = entityList:GetMyPlayer().selection[1]			
-			if not selected.illusion and selected.classId == CDOTA_Unit_Hero_Naga_Siren then
-				local me = entityList:GetMyHero()
+			local selected = entityList:GetMyPlayer().selection[1]		
+			local me = entityList:GetMyHero()
+			if selected.handle ~= me.handle and selected.classId == CDOTA_Unit_Hero_Naga_Siren then				
 				me:CastAbility(me:GetAbility(3))
 			end
 		end
