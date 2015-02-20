@@ -36,7 +36,7 @@ function Tick(tick)
 		local me = entityList:GetMyHero() 
 		if not me then return end
 		
-		local illusion = entityList:GetEntities({type = LuaEntity.TYPE_HERO,team = me.team,illusion = true,alive = true, controllable=true})
+		local illusion = entityList:GetEntities(function (v) return v.type == LuaEntity.TYPE_HERO and v.team == me.team and v.illusion and v.alive and v.controllable and v.classId == CDOTA_Unit_Hero_Naga_Siren end)
 		
 		--draw
 		for i = 1, 8 do
