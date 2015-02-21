@@ -54,7 +54,7 @@ function Tick(tick)
 					main.icon[i].mp = drawMgr:CreateRect(24,38+i*70,72,5,0x0C4A97ff)
 					main.icon[i].mpR = drawMgr:CreateRect(23,37+i*70,73,7,0x010102ff,true)
 					main.icon[i].mpBG = drawMgr:CreateRect(24,38+i*70,72,5,0x01010280)
-					main.icon[i].map = drawMgr:CreateText(0,0,-1,"",drawMgr:CreateFont("F13","Arial",12,600))
+					--main.icon[i].map = drawMgr:CreateText(0,0,-1,"",drawMgr:CreateFont("F13","Arial",12,600))
 					Visible(false,i)
 				end	
 				
@@ -71,6 +71,12 @@ function Tick(tick)
 				local modifer = v:FindModifier("modifier_illusion")
 				if modifer then
 				
+					--[[local activity = v.activity
+
+					if main.action == 0 and (activity == LuaEntityNPC.ACTIVITY_IDLE or activity == LuaEntityNPC.ACTIVITY_IDLE1) and v.recentDamage ~= 0 then
+						v:AttackMove(v.position)
+					end]]
+					
 					--[[if entityList:GetMyPlayer().selection[1].handle == v.handle then
 						main.icon[i].sirenBG.color = 0x00000001
 					else
@@ -81,7 +87,7 @@ function Tick(tick)
 						player:Select(v)
 					end]]
 					
-					local Minimaps = MapToMinimap(v.position.x,v.position.y)				
+					--local Minimaps = MapToMinimap(v.position.x,v.position.y)				
 					local hpPercent = v.health/v.maxHealth
 					local printMe = string.format("%i",math.floor(v.health))				
 					local mpPercent = modifer.remainingTime/modifer.duration
@@ -93,9 +99,9 @@ function Tick(tick)
 					main.icon[i].mpBG.x = 24+72*mpPercent 
 					main.icon[i].mpBG.w = 72*(1-mpPercent)
 					
-					main.icon[i].map.text = ""..i
+					--[[main.icon[i].map.text = ""..i
 					main.icon[i].map.x = Minimaps.x
-					main.icon[i].map.y = Minimaps.y				
+					main.icon[i].map.y = Minimaps.y]]			
 					
 					if not main.icon[i].siren.visible then
 						Visible(true,i)
@@ -174,6 +180,7 @@ function Key(msg,code)
 	if msg == KEY_DOWN then
 		if code == toggleKey then
 			activated = true
+			--main.action == 0
 		elseif code == rt then
 			local selected = entityList:GetMyPlayer().selection[1]		
 			local me = entityList:GetMyHero()
@@ -208,7 +215,7 @@ function Visible(set,num)
 	main.icon[num].mp.visible = set
 	main.icon[num].mpR.visible = set
 	main.icon[num].mpBG.visible = set
-	main.icon[num].map.visible = set
+	--main.icon[num].map.visible = set
 end
 
 function GetSpots(ent,tab)
@@ -349,9 +356,8 @@ function Load()
 end
 
 function GameClose()
-	main.block = {}
-	main.ill = {}
-	main.time = nil
+	Clear()
+	collectgarbage("collect")
 	main.stage = false
 	main.action = 0
 	if play then
