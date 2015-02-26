@@ -531,46 +531,51 @@ function KillMines(me,ability,damage,adamage,comp,id)
 				if not heroG[hand] then
 					heroG[hand] = drawMgr:CreateText(20*shft,-58*shft, 0xFF99FF99, "",F14) heroG[hand].visible = false heroG[hand].entity = v heroG[hand].entityPosition = Vector(0,0,v.healthbarOffset)
 				end
-				if v.visible and v.alive and v.health > 0 then
-					heroG[hand].visible = draw
-					local DmgM = 0 for z,x in ipairs(mines) do if GetDistance2D(x,v) < 425 then	DmgM = DmgM + mine[x.handle] end end
-					local DmgS = math.floor(v:DamageTaken(DmgM,DmgT,me))
-					local DmgF = math.floor(v.health - DmgS)
-					heroG[hand].text = " "..DmgF	
-					if DmgF < 0 then
-						if not note[hand] then
-							note[hand] = true
-							GenerateSideMessage(v.name,Spell.name)
-						end
-						if activ and not Channel then							
-							if AutoGlobal or combo then
-								for z,x in ipairs(mines) do
-									if GetDistance2D(x,v) < 425 then
-										x:CastAbility(x:GetAbility(1))																				
-									end
-								end								
-							else
-								if v.meepoIllusion == nil then
-									table.insert(count,v.position)
+				if v.visible and v.alive and v.health > 0 then					
+					local DmgS = 0
+					local DmgF = 0					
+					local exploit = {}
+					for z,x in ipairs(mines) do 
+						if GetDistance2D(x,v) < 425 then
+							DmgS = DmgS + mine[x.handle]							
+							exploit[#exploit+1] = x
+							DmgF = v.health - math.floor(v:DamageTaken(DmgS,DmgT,me))
+							if DmgF < 0 then
+								if not note[hand] then
+									note[hand] = true
+									GenerateSideMessage(v.name,Spell.name)
 								end
-							end
-						end
-					elseif note[hand] then
-						note[hand] = false
-					end						
+								if activ and (AutoGlobal or combo) then
+									for a,s in ipairs(exploit) do
+										s:CastAbility(s:GetAbility(1))										
+									end
+								elseif v.meepoIllusion == nil then
+									table.insert(count,exploit)
+								end
+								break
+							elseif note[hand] then
+								note[hand] = false
+							end	
+						end 
+					end
+					heroG[hand].text = " "..DmgF
+					heroG[hand].color = GetColor(DmgF)
+					heroG[hand].visible = draw
 				elseif heroG[hand].visible then
 					heroG[hand].visible = false
 				end
 			end
 		end
 		if #count >= GlobalCount then
-			for z,x in ipairs(mines) do
-				if GetDistance2D(count[1],x) < 425 then
-					x:CastAbility(x:GetAbility(1))
+			for z,x in ipairs(count) do
+				for a,s in ipairs(x) do
+					if s.alive then
+						s:CastAbility(s:GetAbility(1))
+					end
 				end
 			end
 		end
-		combo = false 
+		combo = false
 	end
 end
 
