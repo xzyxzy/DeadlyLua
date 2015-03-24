@@ -1,5 +1,6 @@
 require("libs.Utils")
 require("libs.ScriptConfig")
+require("libs.SideMessage")
 
 local config = ScriptConfig.new()
 config:SetParameter("ShowLastSpell", true)
@@ -63,8 +64,7 @@ function Tick( tick )
 					main.sleep[Id] = nil
 					--track all spells 
 					if v.classId == CDOTA_Unit_Hero_LoneDruid then
-						local mod = v.modifiers
-						for a,s in ipairs(mod) do
+						for a,s in ipairs(v.modifiers) do
 							if s.name == "modifier_lone_druid_druid_form_transform" or s.name == "modifier_lone_druid_true_form_transform" then
 								main.lastSpell[Id] = "lone_druid_true_form"
 							end
@@ -131,9 +131,9 @@ function Tick( tick )
 					if main.target and main.target[1].handle == v.handle then
 						if main.lastSpell[Id] ~= main.target[2] then
 							me:Stop()
-							main.target = nil
+							main.target = nil							
 						end
-					end				
+					end
 					--steals function
 					if main.lastSpell[Id] then
 						icon[Id].ol.textureId = drawMgr:GetTextureId("NyanUI/spellicons/"..main.lastSpell[Id])
@@ -261,6 +261,16 @@ function Tick( tick )
 		
 	end	
 	
+	if math.ceil(steal.cd*10) ==  math.ceil(steal:GetCooldown(steal.level)*10) then
+		for i,v in ipairs(entityList:GetProjectiles({})) do
+			if v.target.classId == me.classId and v.speed == 900 then --  v.name is broken :(
+				local ls = main.lastSpell[GetPlayerId(v.source.playerId)]
+				if ls then
+					GenerateSideMessage(v.source.name:gsub("npc_dota_hero_",""),main.lastSpell[GetPlayerId(v.source.playerId)])
+				end
+			end
+		end
+	end
 	
 	--interface control
 	if activated then
@@ -362,7 +372,8 @@ function Key(msg,code)
 						end
 					end
 				end
-			end					
+			end	
+				
 		elseif IsMouseOnButton(xx+175*rate,yy+80*rate,15*rate,15*rate) then
 			move = not move
 			return true			
@@ -394,6 +405,13 @@ function IsMouseOnButton(x,y,h,w)
 	local mx = client.mouseScreenPosition.x
 	local my = client.mouseScreenPosition.y
 	return mx > x and mx <= x + w and my > y and my <= y + h
+end
+
+function GenerateSideMessage(heroName,spellName)
+	local test = sideMessage:CreateMessage(200,60)
+	test:AddElement(drawMgr:CreateRect(120,11,72,40,0xFFFFFFFF,drawMgr:GetTextureId("NyanUI/heroes_horizontal/"..heroName)))
+	test:AddElement(drawMgr:CreateRect(55,16,62,31,0xFFFFFFFF,drawMgr:GetTextureId("NyanUI/other/arrow_usual")))
+	test:AddElement(drawMgr:CreateRect(10,10,40,40,0xFFFFFFFF,drawMgr:GetTextureId("NyanUI/spellicons/"..spellName)))
 end
 
 function Load()
