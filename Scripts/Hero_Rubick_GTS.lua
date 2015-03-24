@@ -1,9 +1,9 @@
 require("libs.Utils")
 require("libs.ScriptConfig")
-require("libs.SideMessage")
 
 local config = ScriptConfig.new()
 config:SetParameter("ShowLastSpell", true)
+config:SetParameter("EverySpells", true)
 config:SetParameter("XX", 20)
 config:SetParameter("YY", 0)
 config:Load()
@@ -12,7 +12,7 @@ local main = {} local icon = {} local spell = {} local steelSpells = {}
 main.lastSpell = {} main.draw = {} main.togl = {} main.sleep = {} main.phase = {} main.rec = {} main.target = nil main.count = 0
 
 local ShowLastSpell = config.ShowLastSpell
-local Speed = config.Faster
+local EverySpells = config.EverySpells
 local xx = config.XX
 local yy = config.YY
 local rate = client.screenSize.x/1600
@@ -131,9 +131,10 @@ function Tick( tick )
 					if main.target and main.target[1].handle == v.handle then
 						if main.lastSpell[Id] ~= main.target[2] then
 							me:Stop()
-							main.target = nil							
+							main.target = nil
 						end
 					end
+					
 					--steals function
 					if main.lastSpell[Id] then
 						icon[Id].ol.textureId = drawMgr:GetTextureId("NyanUI/spellicons/"..main.lastSpell[Id])
@@ -261,7 +262,8 @@ function Tick( tick )
 		
 	end	
 	
-	if math.ceil(steal.cd*10) ==  math.ceil(steal:GetCooldown(steal.level)*10) then
+	--show spell before get it
+	--[[if EverySpells and math.ceil(steal.cd*10) ==  math.ceil(steal:GetCooldown(steal.level)*10) then
 		for i,v in ipairs(entityList:GetProjectiles({})) do
 			if v.target.classId == me.classId and v.speed == 900 then --  v.name is broken :(
 				local ls = main.lastSpell[GetPlayerId(v.source.playerId)]
@@ -270,7 +272,7 @@ function Tick( tick )
 				end
 			end
 		end
-	end
+	end]]
 	
 	--interface control
 	if activated then
