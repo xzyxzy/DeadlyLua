@@ -1,5 +1,6 @@
 require("libs.Utils")
 require("libs.ScriptConfig")
+require("libs.SideMessage")
 
 local config = ScriptConfig.new()
 config:SetParameter("ShowLastSpell", true)
@@ -9,7 +10,7 @@ config:SetParameter("YY", 0)
 config:Load()
 
 local main = {} local icon = {} local spell = {} local steelSpells = {}
-main.lastSpell = {} main.draw = {} main.togl = {} main.sleep = {} main.phase = {} main.rec = {} main.target = nil main.count = 0
+main.lastSpell = {} main.draw = {} main.togl = {} main.sleep = {} main.phase = {} main.rec = {} main.target = {} main.count = 0
 
 local ShowLastSpell = config.ShowLastSpell
 local EverySpells = config.EverySpells
@@ -128,44 +129,55 @@ function Tick( tick )
 						end
 					end
 					--stop me
-					if main.target and main.target[1].handle == v.handle then
-						if main.lastSpell[Id] ~= main.target[2] then
-							me:Stop()
-							main.target = nil
-						end
+					if main.target[Id] ~= nil and main.lastSpell[Id] ~= main.target[Id] then
+						me:Stop()
+						main.target[Id] = nil
 					end
 					
 					--steals function
 					if main.lastSpell[Id] then
 						icon[Id].ol.textureId = drawMgr:GetTextureId("NyanUI/spellicons/"..main.lastSpell[Id])
-						if SleepCheck() and cast and not v:IsLinkensProtected() and GetDistance2D(v,me) < steal.castRange and not v:IsInvul() then
-							for g,spell in ipairs(icon[Id].steelSpells) do
-								if main.lastSpell[Id] == spell and spell ~= stealing.name then
-									local ulti = GetUlti(spell,ability)
-									if ulti then
-										if stealing.abilityType == LuaEntityAbility.TYPE_ULTIMATE then
-											if stealing.cd ~= 0 then
+						if SleepCheck() then
+							if cast and not v:IsLinkensProtected() and GetDistance2D(v,me) < steal.castRange and not v:IsInvul() then
+								for g,spell in ipairs(icon[Id].steelSpells) do
+									if main.lastSpell[Id] == spell and spell ~= stealing.name then
+										local ulti = GetUlti(spell,ability)
+										if ulti then
+											if stealing.abilityType == LuaEntityAbility.TYPE_ULTIMATE then
+												if stealing.cd ~= 0 then
+													entityList:GetMyPlayer():Select(me)
+													entityList:GetMyPlayer():UseAbility(steal,v)
+													if main.target[Id] == nil then
+														main.target[Id] = spell														
+														GenerateSideMessage(v.name:gsub("npc_dota_hero_",""),main.lastSpell[Id])
+													end
+													Sleep(100)
+													break
+												end
+											else
 												entityList:GetMyPlayer():Select(me)
 												entityList:GetMyPlayer():UseAbility(steal,v)
-												main.target = {v,spell}
+												if main.target[Id] == nil then													
+													main.target[Id] = spell
+													GenerateSideMessage(v.name:gsub("npc_dota_hero_",""),main.lastSpell[Id])
+												end
 												Sleep(100)
-												break
+												break	
 											end
-										else
+										elseif stealing.abilityType ~= LuaEntityAbility.TYPE_ULTIMATE then
 											entityList:GetMyPlayer():Select(me)
 											entityList:GetMyPlayer():UseAbility(steal,v)
-											main.target = {v,spell}
+											if main.target[Id] == nil then
+												main.target[Id] = spell
+												GenerateSideMessage(v.name:gsub("npc_dota_hero_",""),main.lastSpell[Id])
+											end
 											Sleep(100)
 											break	
 										end
-									elseif stealing.abilityType ~= LuaEntityAbility.TYPE_ULTIMATE then
-										entityList:GetMyPlayer():Select(me)
-										entityList:GetMyPlayer():UseAbility(steal,v)
-										main.target = {v,spell}
-										Sleep(100)
-										break	
 									end
 								end
+							elseif main.target[Id] and not steal.abilityPhase then
+								main.target[Id] = nil
 							end
 						end
 					else
@@ -182,7 +194,7 @@ function Tick( tick )
 					if main.lastSpell[Id] then
 						--erase if not visible
 						if not main.sleep[Id] then
-							main.sleep[Id] = tick + 1000
+							main.sleep[Id] = tick + 500
 						elseif main.sleep[Id] < tick then
 							main.lastSpell[Id] = nil
 						end
@@ -195,7 +207,7 @@ function Tick( tick )
 				icon[Id].bg.visible = false				
 			end
 		end
-		
+
 		--draw function(ones)
 		if not main.draw[Id] and v.healthbarOffset ~= -1 then
 			if v.classId == CDOTA_Unit_Hero_Invoker then
@@ -432,7 +444,7 @@ end
 
 function GameClose()
 	icon = {} spell = {} steelSpells = {} main.lastSpell = {} main.draw = {} 
-	main.togl = {}	main.sleep = {} main.phase = {} main.target = nil main.count = 0
+	main.togl = {}	main.sleep = {} main.phase = {} main.target = {} main.count = 0
 	main.rec[2].w = 350*rate move = true
 	for i = 1,#main.rec do
 		main.rec[i].visible = false
