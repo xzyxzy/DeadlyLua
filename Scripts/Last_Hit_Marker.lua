@@ -6,6 +6,7 @@ config = ScriptConfig.new()
 config:SetParameter("LastHitKey", "C", config.TYPE_HOTKEY)
 config:SetParameter("DenayHitKey", "X", config.TYPE_HOTKEY)
 config:SetParameter("LastHit", true)
+config:SetParameter("AutoDisable", true)
 config:Load()
 
 local rect = {}
@@ -16,6 +17,7 @@ local ex = client.screenSize.x/1600*0.8
 local lasthit = config.LastHit
 local lasthitKey = config.LastHitKey
 local denyKey = config.DenayHitKey
+local AD = config.AutoDisable
 
 function Tick( tick )
 
@@ -26,7 +28,7 @@ function Tick( tick )
 	local me = entityList:GetMyHero()	
 	if not me then return end
 
-	if client.gameTime > 1800 or me.dmgMin > 100 then
+	if AD and (client.gameTime > 1800 or me.dmgMin > 100) then
 		GameClose()
 		script:Disable()
 	end
