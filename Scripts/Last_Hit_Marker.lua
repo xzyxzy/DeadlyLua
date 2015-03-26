@@ -6,7 +6,6 @@ config = ScriptConfig.new()
 config:SetParameter("LastHitKey", "C", config.TYPE_HOTKEY)
 config:SetParameter("DenayHitKey", "X", config.TYPE_HOTKEY)
 config:SetParameter("LastHit", true)
-config:SetParameter("AutoDisable", true)
 config:Load()
 
 local rect = {}
@@ -17,7 +16,6 @@ local ex = client.screenSize.x/1600*0.8
 local lasthit = config.LastHit
 local lasthitKey = config.LastHitKey
 local denyKey = config.DenayHitKey
-local AD = config.AutoDisable
 
 function Tick( tick )
 
@@ -27,12 +25,10 @@ function Tick( tick )
 
 	local me = entityList:GetMyHero()	
 	if not me then return end
-	
-	if AD then
-		if client.gameTime > 1800 or me.dmgMin > 100 then
-			GameClose()
-			script:Disable()
-		end
+
+	if client.gameTime > 1800 or me.dmgMin > 100 then
+		GameClose()
+		script:Disable()
 	end
 
 	local dmg = Damage(me)
@@ -48,35 +44,37 @@ function Tick( tick )
 				if not rect[v.handle] then 
 					rect[v.handle] = drawMgr:CreateRect(-4*ex,-32*ex,0,0,0xFF8AB160) rect[v.handle].entity = v rect[v.handle].entityPosition = Vector(0,0,offset) rect[v.handle].visible = false 					
 				end
-
-				if v.visible and v.alive and v.health > 0 and v.health < (dmg*(1-v.dmgResist)+1) then						
-					if v.team == me.team then
-						rect[v.handle].w = 20*ex
-						rect[v.handle].h = 20*ex
-						rect[v.handle].textureId = drawMgr:GetTextureId("NyanUI/other/Active_Deny")
+				
+				if v.visible and v.alive then
+					local damage = (dmg*(1-v.dmgResist)+1)
+					if v.health > 0 and v.health < damage then						
+						if v.team == me.team then
+							rect[v.handle].w = 20*ex
+							rect[v.handle].h = 20*ex
+							rect[v.handle].textureId = drawMgr:GetTextureId("NyanUI/other/Active_Deny")
+						else
+							rect[v.handle].w = 15*ex
+							rect[v.handle].h = 15*ex
+							rect[v.handle].textureId = drawMgr:GetTextureId("NyanUI/other/Active_Coin")
+						end
 						if LH(v,me.attackRange,me.position,denyKey) then
 							break
 						end
-					else
-						rect[v.handle].w = 15*ex
-						rect[v.handle].h = 15*ex
-						rect[v.handle].textureId = drawMgr:GetTextureId("NyanUI/other/Active_Coin")
-						if LH(v,me.attackRange,me.position,lasthitKey) then
-							break
+						rect[v.handle].visible = true
+					elseif v.health > damage and v.health < damage+88 then					
+						if v.team == me.team then
+							rect[v.handle].w = 20*ex
+							rect[v.handle].h = 20*ex
+							rect[v.handle].textureId = drawMgr:GetTextureId("NyanUI/other/Passive_Deny")
+						else
+							rect[v.handle].w = 15*ex
+							rect[v.handle].h = 15*ex
+							rect[v.handle].textureId = drawMgr:GetTextureId("NyanUI/other/Passive_Coin")
 						end
+						rect[v.handle].visible = true
+					else 
+						rect[v.handle].visible = false
 					end
-					rect[v.handle].visible = true
-				elseif v.visible and v.alive and v.health > (dmg*(1-v.dmgResist)) and v.health < (dmg*(1-v.dmgResist))+88 then					
-					if v.team == me.team then
-						rect[v.handle].w = 20*ex
-						rect[v.handle].h = 20*ex
-						rect[v.handle].textureId = drawMgr:GetTextureId("NyanUI/other/Passive_Deny")
-					else
-						rect[v.handle].w = 15*ex
-						rect[v.handle].h = 15*ex
-						rect[v.handle].textureId = drawMgr:GetTextureId("NyanUI/other/Passive_Coin")
-					end
-					rect[v.handle].visible = true
 				elseif rect[v.handle].visible then
 					rect[v.handle].visible = false
 				end
