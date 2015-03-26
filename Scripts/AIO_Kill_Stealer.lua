@@ -553,8 +553,6 @@ function KillMines(me,ability,damage,adamage,comp,id)
 									table.insert(count,exploit)
 								end
 								break
-							elseif note[hand] then
-								note[hand] = false
 							end	
 						end 
 					end
@@ -563,6 +561,7 @@ function KillMines(me,ability,damage,adamage,comp,id)
 					heroG[hand].visible = draw
 				elseif heroG[hand].visible then
 					heroG[hand].visible = false
+					note[hand] = false
 				end
 			end
 		end
