@@ -73,7 +73,7 @@ function Tick(tick)
 				local vector = (t_ - me.position) * 150 / GetDistance2D(t_,me) + me.position
 				me:CastAbility(remnant,vector,false)
 				me:CastAbility(smash,vector,true)	
-				sleep = tick + 1200
+				sleep = tick + 1300
 				stage = 2
 			end			
 		elseif stage == 2 and stunned and grip:CanBeCasted() and GetDistance2D(stunned,me) < grip.castRange then
