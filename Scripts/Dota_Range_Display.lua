@@ -81,7 +81,7 @@ function Tick(tick)
 				if not spells[a].range or spells[a].range == 0 then	
 					spells[a].range = GetSpecial(v)					
 				end
-				if not spells[a].range then spells[a].state = nil return end
+				if not spells[a].range then return end
 				if not spells[a].effect or spells[a].ranges ~= spells[a].range then
 					spells[a].effect = Effect(me,"range_display")
 					spells[a].effect:SetVector( 1,Vector(spells[a].range,0,0) )
@@ -150,6 +150,8 @@ function GetSpecial(spell)
 				return v:GetData(math.min(v.dataCount,spell.level))
 			elseif v.name == "area_of_effect" then
 				return v:GetData(math.min(v.dataCount,spell.level))
+			elseif v.name == "dash_length" then
+				return v:GetData(math.min(v.dataCount,spell.level))
 			end
 		end
 		local last = spell:GetSpecial(1):GetData(math.min(spell.specials[1].dataCount,spell.level))
@@ -195,8 +197,9 @@ function Load()
 	end
 end
 
-function GameClose()
+function GameClose()	
 	if play then
+		print("213")
 		script:UnregisterEvent(Tick)
 		script:UnregisterEvent(Key)
 		script:RegisterEvent(EVENT_TICK,Load)
