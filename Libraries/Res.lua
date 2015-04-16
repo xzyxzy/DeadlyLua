@@ -104,6 +104,24 @@ function MapToMinimap(x, y)
     return Vector2D(math.floor(screenX),math.floor(screenY))
 end
 
+function MinimapToMap()
+
+	local mouse = client.mouseScreenPosition
+	
+	local scaledX = mouse.x - location.minimap.px
+    local scaledY = screenSize.y - mouse.y - location.minimap.py
+    
+    local x = scaledX / MinimapMapScaleX + MapLeft
+    local y = scaledY / MinimapMapScaleY + MapBottom
+	
+	if math.abs(x) > 7900 or math.abs(y) > 7200 then
+		return nil		
+	else
+		return Vector2D(x,y)
+	end
+	
+end
+
 do
     screenSize = client.screenSize
     if screenSize.x == 0 and screenSize.y == 0 then
