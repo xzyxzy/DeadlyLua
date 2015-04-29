@@ -17,45 +17,39 @@ local rect = drawMgr:CreateRect(xx-1,yy-1,26,25,0xFFFFFF90,true) rect.visible = 
 
 function Tick(tick)
  
-	if client.console or tick < sleep then return end
+	if client.console or not SleepCheck() then return end
 	
-	sleep = tick + 200
+	Sleep(250)
 
 	local me = entityList:GetMyHero() 
 	
 	if not me then return end
-       
+
 	local dagon = me:FindDagon()
 	local visible = IsTrue(activated,dagon)
 	
 	rect.visible = visible
 	icon.visible = visible
 	
-	if visible and dagon:CanBeCasted() and me:CanUseItems()  then
+	if visible and dagon:CanBeCasted() and me:CanUseItems() and not me:IsChanneling() and Nyx(me) then
 		local dmgD = dagon:GetSpecialData("damage")
-		local enemy = entityList:GetEntities({type=LuaEntity.TYPE_HERO,alive=true,visible=true,team = (5-me.team)})
-		if not me:IsChanneling() and Nyx(me) then
-			for i = 1,#enemy do
-				local v = enemy[i]
-				if not v:IsIllusion() and GetDistance2D(v,me) < dagon.castRange+25 and v:CanDie() then
-					if not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and not v:IsLinkensProtected() then
-						if v.health < v:DamageTaken(dmgD, DAMAGE_MAGC, me) then
-							me:CastAbility(dagon,v)
-							break
-						end
+		local enemy = entityList:GetEntities(function (v) return v.type==LuaEntity.TYPE_HERO and v.alive and v.visible and v.team ~= me.team and not v:IsIllusion() end)		
+		for i, v in ipairs(enemy) do
+			if GetDistance2D(v,me) < dagon.castRange+25 and v:CanDie() then
+				if not v:DoesHaveModifier("modifier_nyx_assassin_spiked_carapace") and not v:IsLinkensProtected() then
+					if v.health < v:DamageTaken(dmgD, DAMAGE_MAGC, me) then
+						me:CastAbility(dagon,v)
+						break
 					end
 				end
 			end
-		end	
+		end
 	end
 
 end
 
 function IsTrue(a,b)
-	if a and b then
-		return true
-	end
-	return false
+	return a and b ~= nil
 end
 
 function Nyx(target)
@@ -81,10 +75,10 @@ function Load()
 end
 
 function GameClose()
-	rect.visible = false
-	icon.visible = false
-	activated = true
 	if play then
+		rect.visible = false
+		icon.visible = false
+		activated = true
 		script:UnregisterEvent(Key)
 		script:UnregisterEvent(Tick)
 		script:RegisterEvent(EVENT_TICK,Load)
