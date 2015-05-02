@@ -945,6 +945,8 @@ function GenerateSideMessage(heroName,spellName)
 end
 
 function KSCastSpell(spell,target,me,lsblock)
+local soulring = me:FindItem("item_soul_ring")
+local arcane = me:FindItem("item_arcane_boots")
 	if spell and spell:CanBeCasted() and me:CanCast() and not (target and lsblock == true and target:IsLinkensProtected()) then
 		local prev = SelectUnit(me)
 		if not target then
@@ -953,7 +955,15 @@ function KSCastSpell(spell,target,me,lsblock)
 			entityList:GetMyPlayer():UseAbility(spell,target)
 		end
 		SelectBack(prev)
+	else if spell and me:CanCast() and not (target and lsblock == true and target:IsLinkensProtected()) and me.mana < spell.manacost then
+		if soulring and soulring:CanBeCasted() and me.mana < spell.manacost then
+			me:SafeCastItem(soulring.name)
+		end
+		if arcane and arcane:CanBeCasted() and me.mana < spell.manacost then
+			me:SafeCastItem(arcane.name)
+		end
 	end
+end
 end
 
 function KSCastSpellSF(spell,target,me)
